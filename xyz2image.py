@@ -1,7 +1,6 @@
 '''
 Authors: Trond Henninen(trond.henninen@empa.ch) and Feng Wang
 
-
 This script is for generating normalised Gaussian simulated annular dark-field scanning transmission electron microscopy (ADF-STEM) images from input atomic coordinates.
 For rapidly generating a large dataset, it approximates a contrast similar to multislice simulated images by convolving a 2D Gaussian with the atomic coordinates. 
 This is a decent approximation for up to 10 overlapping atoms, as the contrast is linearly additive for such thin lattices. 
