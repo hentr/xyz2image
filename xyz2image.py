@@ -2,7 +2,7 @@
 This script is for generating normalised Gaussian simulated annular dark-field scanning transmission electron microscopy (ADF-STEM) images from input atomic coordinates.
 For rapidly generating a large dataset, it approximates a contrast similar to multislice simulated images by convolving a 2D Gaussian with the atomic coordinates. 
 This is a decent approximation for up to 10 overlapping atoms, as the contrast is linearly additive for such thin lattices. 
-Optimized for rapidly generating data with multiprocessing, so can generate millions of images per hour with a dektop processor. 
+Optimized for rapidly generating data with multiprocessing, so can generate millions of images per hour with a desktop processor. 
 
 Inputs .xyz files and outputs a .tif image and compressed arrays (.npz) for fast save/load data e.g. for machine learning.
 The input coodinates gets blurred by a 3D gaussian and has the z-dimension flattened to make the 2d image.
@@ -27,7 +27,7 @@ Variables:
 
 'frameshift' and 'maxframes' are for .xyz files with many frames:
 'frameshift' is which frame it start reading from (default 0)
-'maxframes' is how many consequitive frames is read (default 50)
+'maxframes' is how many consecutive frames is read (default 50)
 '''
 
 import os, glob
