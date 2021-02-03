@@ -1,7 +1,11 @@
 '''
-Inputs .xyz files and outputs a 16-bit .tif image and a pickled 16-bit 3D numpy array (.plk).
-The input coodinated are blurred by a 3D gaussian and has the z-dimension flattened to make the 2d image.
-The .plk array can be loaded with the load_obj function.
+This script is for generating normalised Gaussian simulated annular dark-field scanning transmission electron microscopy (ADF-STEM) images from input atomic coordinates.
+For rapidly generating a large dataset, it approximates a contrast similar to multislice simulated images by convolving a 2D Gaussian with the atomic coordinates. 
+This is a decent approximation for up to 10 overlapping atoms, as the contrast is linearly additive for such thin lattices. 
+Optimized for rapidly generating data with multiprocessing, so can generate millions of images per hour with a dektop processor. 
+
+Inputs .xyz files and outputs a .tif image and compressed arrays (.npz) for fast save/load data e.g. for machine learning.
+The input coodinates gets blurred by a 3D gaussian and has the z-dimension flattened to make the 2d image.
 xyz2image.xyz2image converts just one file, while xyz2image.folder convert all files in the folder.
 
 Keep in mind, dimensions of the xyz coordinates, gauss_sigma and padxyz are all in ångström [å].
@@ -11,7 +15,7 @@ TODO: convert binary_radius to [å] instead if pixels
 TODO: set a parameter for voxsize (e.g. 9 pm), and calculate  
 
 Variables:
-'folder' is the folder path where to look for .xyz files (default: current workdir). 
+'folder' is the folder path where to look for .xyz files (default: '.' meaning current folder). 
 'gauss_sigma' is the gaussian gauss_sigma in ångström [å]. (default: 0.4).
 'edgesize' is the size in pixels of the output square image and voxel cube (default: 128).
 'padxyz' is the minimum padding (in [å]) added around the atomic coordinate array, adjusted to make the box cubic (default: 1.5)
@@ -28,7 +32,7 @@ Variables:
 
 import os, glob
 import numpy as np
-from ase.io import read
+from ase.io import read 
 from scipy.ndimage.filters import gaussian_filter
 from random import uniform
 import tifffile as tif
@@ -57,7 +61,7 @@ P.bitrate = 8 #output bitrate, 8 or 16
 P.gauss_sigma = 0.4
 P.edgesize = 80 
 P.padxyz = 0.3
-P.n_rotation = 1#(1024)*8 #number of rotations in one .npz stack
+P.n_rotation = (1024)*8 #number of rotations in one .npz stack, 8k is a good compromise of speed/filesize/memory consumption
 P.n_stacks = 1 # number of .npz stacks will be generated for each input file
 P.frameshift = 0 
 P.maxframes = 50
@@ -65,13 +69,10 @@ P.binary_radius = 7    #[pixels] radius of atoms in binary_3d
 P.xyzfiles = glob.glob('*.xyz')
 
 ########################   /PARAMETERS   ###################################
-
-
-        
+     
 def load(filename): 
     # for loading numpy compressed ND-arrays (.npz) files
     return(np.load(filename))
-
 
 def xyz2image(file):
     print(file)
@@ -153,7 +154,6 @@ def xyz2image(file):
         output_stacks['binary_3d'] = np.asarray(binary_3d_stack)
 
     simulated_files = len( glob.glob(f'{P.output_folder}/{fname}/*' ))
-    #file_name = f'{P.output_folder}/{fname}/{str(simulated_files+image_index).zfill(8)}'
     file_name = f'{P.output_folder}/{fname}/{str(simulated_files+P.n_rotation*len(t2)).zfill(8)}' 
     
     if any([P.output_types['delta_3d'],P.output_types['delta_2d'],P.output_types['gaussian_2d'],P.output_types['gaussian_3d'],P.output_types['binary_3d']]):
@@ -163,11 +163,7 @@ def xyz2image(file):
     if P.output_types['gaussian_2d_image'] == True: 
         tif.imsave(file_name+'gaussian_2d.tif',np.asarray(gaussian_2d_stack))
     #if P.output_types['binary_2d_image'] == True: 
-    
-    
-    #npz = (load(file_name+'.npz'))
-    #print(npz.files,np.shape(npz['delta_3d']),np.shape(npz['gaussian_2d']))
-
+   
 
 def folder_parallellized(P): #runs all the .xyz files in the folder, parallelized with one file per thread
     os.chdir(P.folder)
@@ -179,6 +175,6 @@ if __name__ == '__main__':
     for i in range(0,P.n_stacks):
         folder_parallellized(P)
 
-
-    # npz = (load('00000012.npz'))
-    # print(npz.files,np.shape(npz['delta_3d']),np.shape(npz['gaussian_2d']))
+    #to load .npz files: 
+    #npz = (load(file_name+'.npz'))
+    #print(npz.files,np.shape(npz['delta_3d']),np.shape(npz['gaussian_2d']))
