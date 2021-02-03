@@ -27,4 +27,4 @@ Variables:
 
 'frameshift' and 'maxframes' are for .xyz files with many frames:  
 'frameshift' is which frame it start reading from (default 0)  
-'maxframes' is how many consequitive frames is read (default 50)  
+'maxframes' is how many consecutive frames is read (default 50)  
